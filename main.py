@@ -1,7 +1,8 @@
-from scraper.netkeiba import get_shutuba
+from scraper.netkeiba import get_horse_list
 
 race_id = input("レースIDを入力してください：")
 
-df = get_shutuba(race_id)
+horses = get_horse_list(race_id)
 
-print(df.head())
+for horse in horses:
+    print(f"{horse['horse_name']} : {horse['horse_id']}")

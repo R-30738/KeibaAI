@@ -1,6 +1,8 @@
 import io
-import requests
+import re
+
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
 
 HEADERS = {
@@ -34,3 +36,39 @@ def get_shutuba(race_id):
     url = f"https://race.netkeiba.com/race/shutuba.html?race_id={race_id}"
     tables = get_tables(url)
     return tables[0]
+
+
+def get_horse_list(race_id):
+    url = f"https://race.netkeiba.com/race/shutuba.html?race_id={race_id}"
+    soup = get_soup(url)
+
+    horses = []
+    seen = set()
+
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+
+        if "db.netkeiba.com/horse/" not in href:
+            continue
+
+        m = re.search(r"/horse/(\d+)", href)
+        if not m:
+            continue
+
+        horse_id = m.group(1)
+        horse_name = a.text.strip()
+
+        if not horse_name:
+            continue
+
+        if horse_id in seen:
+            continue
+
+        seen.add(horse_id)
+
+        horses.append({
+            "horse_id": horse_id,
+            "horse_name": horse_name
+        })
+
+    return horses
