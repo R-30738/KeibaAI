@@ -1,16 +1,7 @@
-# Python
 __pycache__/
 *.pyc
-
-# 仮想環境
 .venv/
-
-# VS Code
 .vscode/
-
-# データ
 data/
-
-# OS
 .DS_Store
 Thumbs.db
