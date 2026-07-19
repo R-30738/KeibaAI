@@ -1,8 +1,7 @@
-from scraper.netkeiba import get_horse_list
+from scraper.netkeiba import get_horse_result
 
-race_id = input("レースIDを入力してください：")
+horse_id = "2022101193"
 
-horses = get_horse_list(race_id)
+df = get_horse_result(horse_id)
 
-for horse in horses:
-    print(f"{horse['horse_name']} : {horse['horse_id']}")
+print(df.columns)

@@ -4,6 +4,7 @@ import re
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from io import StringIO
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
@@ -11,9 +12,29 @@ HEADERS = {
 
 
 def get_html(url):
-    response = requests.get(url, headers=HEADERS)
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/150.0.0.0 Safari/537.36"
+        ),
+        "Accept": (
+            "text/html,application/xhtml+xml,application/xml;q=0.9,"
+            "image/avif,image/webp,*/*;q=0.8"
+        ),
+        "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+        "Referer": "https://db.netkeiba.com/",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+    }
+
+    session = requests.Session()
+    session.headers.update(headers)
+
+    response = session.get(url, timeout=20)
     response.raise_for_status()
-    return response.text
+
+    return response.content.decode("euc-jp", errors="replace")
 
 
 def get_soup(url):
@@ -72,3 +93,32 @@ def get_horse_list(race_id):
         })
 
     return horses
+
+
+def get_horse_result(horse_id):
+    url = f"https://db.netkeiba.com/horse/ajax_horse_results.html?id={horse_id}"
+
+    html = get_html(url)
+
+    df = pd.read_html(StringIO(html))[0]
+
+    columns = [
+        "日付",
+        "レース名",
+        "着 順",
+        "騎手",
+        "斤 量",
+        "距離",
+        "馬 場",
+        "タイム",
+        "着差",
+        "通過",
+        "ペース",
+        "上り",
+        "馬体重",
+        "人 気",
+        "オ ッ ズ",
+        "賞金",
+    ]
+
+    return df[columns]
